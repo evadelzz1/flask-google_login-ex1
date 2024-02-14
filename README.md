@@ -2,10 +2,13 @@
 Register and Login with Google OAuth using Flask and SQLite
 
 
+
 ## Install requirements
 
-  python -m venv .venv && source .venv/bin/activate
-  pip install -r requirements.txt
+```shell
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 ---
 <br>
 
