@@ -74,3 +74,4 @@ http://localhost:3000
 ## Reference
 
 - flask-google-login : https://github.com/pj8912/flask-google-login
+- How to Create Google OAuth2 client_secret.json file : https://www.youtube.com/watch?v=kr_OYm3ZmUI
