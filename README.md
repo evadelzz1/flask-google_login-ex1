@@ -32,7 +32,7 @@ Create a `.env`add these variables and their respective values :
 ## Create SQLite database
 - Run 
 ```
-python created_db.py
+python create_db.py
 ```
 
  to create your the sqlite databse `users.sqlite3` which will store the users on registration automatically.
@@ -75,3 +75,5 @@ http://localhost:3000
 
 - flask-google-login : https://github.com/pj8912/flask-google-login
 - How to Create Google OAuth2 client_secret.json file : https://www.youtube.com/watch?v=kr_OYm3ZmUI
+
+- https://jakpentest.tistory.com/341

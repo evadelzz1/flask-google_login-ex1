@@ -1,4 +1,3 @@
-
 import sqlite3
 
 conn  =  sqlite3.connect('users.sqlite3')
@@ -6,7 +5,8 @@ conn  =  sqlite3.connect('users.sqlite3')
 cursor = conn.cursor()
 
 
-cursor.execute("""CREATE TABLE IF NOT EXISTS users(
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users(
 uid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 username TEXT,
 user_email TEXT,

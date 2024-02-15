@@ -19,7 +19,9 @@ cursor = conn.cursor()
 app = Flask("flask-login-app")
 app.secret_key = os.environ.get("APP_SECRET") # make sure 
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+# https 만을 지원하는 기능을 http에서 테스트할 때 필요한 설정
+# to allow Http traffic for local dev
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" 
 
 GOOGLE_CLIENT_ID = os.environ.get("CLIENT_ID")
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
@@ -48,14 +50,20 @@ def login_is_required(function):
     return wrapper
 
 
-
+@app.route("/")
+def index():
+    if "google_id" in session:
+        return render_template('index.html', logged_in=True, username=session['name'])   
+        # return "Hello World <a href='/login'><button>Login</button></a>"
+    else: 
+        return render_template('index.html', logged_in=False)   
+    
 @app.route('/googlelogin')
 def google_login():
     authorization_url, state = flow.authorization_url()
     session["state"] = state
+    print(session["state"])
     return redirect(authorization_url)
-
-
 
 @app.route("/callback")
 def callback():
@@ -67,16 +75,14 @@ def callback():
     if "google_id" not in session:
         flow.fetch_token(authorization_response=request.url)
 
-        print('=======');
+        print('=======' * 10);
         print(request)
-        print('=======');
+        print('=======' * 10);
         print(request.args.get("state"))
         
-        # 세션에 있는 'state' 값과 요청의 'state' 파라미터 값이 일치하는지 확인
-        # if session["state"] != request.args.get("state"):
-        if not session["state"] == request.args["state"]:
+        if session['state'] != request.args.get('state'):
             abort(500)  # State does not match!
-       
+            
         credentials = flow.credentials
         request_session = requests.session()
         cached_session = cachecontrol.CacheControl(request_session)
@@ -109,14 +115,6 @@ def logout():
     else :
         return redirect("/")
 
-
-@app.route("/")
-def index():
-    if "google_id" in session:
-        return render_template('index.html', logged_in=True, username=session['name'])   
-    # return "Hello World <a href='/login'><button>Login</button></a>"
-    else: 
-        return render_template('index.html', logged_in=False)   
 
 
 @app.route("/register")
