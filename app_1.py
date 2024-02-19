@@ -28,10 +28,13 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    scopes=[
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "openid"
+    ],
     redirect_uri="http://localhost:3000/callback"
 )
-
 
 flow2 = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
@@ -52,6 +55,7 @@ def login_is_required(function):
 
 @app.route("/")
 def index():
+    print(f'>> {session['google_id']}')
     if "google_id" in session:
         return render_template('index.html', logged_in=True, username=session['name'])   
         # return "Hello World <a href='/login'><button>Login</button></a>"
@@ -80,8 +84,8 @@ def callback():
         print('=======' * 10);
         print(request.args.get("state"))
         
-#        if session['state'] != request.args.get('state'):
-#            abort(500)  # State does not match!
+        # if session['state'] != request.args.get('state'):
+        #     abort(500)  # State does not match!
             
         credentials = flow.credentials
         request_session = requests.session()
@@ -124,7 +128,6 @@ def register_page():
 @app.route('/signin')
 def sign_in():
     return render_template('signin.html')
-
 
 @app.route('/googlelogin_callback')
 def google_login_callback():
