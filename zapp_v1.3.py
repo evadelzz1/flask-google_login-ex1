@@ -17,32 +17,25 @@ cursor = conn.cursor()
 
 
 app = Flask("flask-login-app")
-app.secret_key = os.environ.get("APP_SECRET_KEY") # make sure 
+app.secret_key = os.environ.get("APP_SECRET") # make sure 
 
 # https 만을 지원하는 기능을 http에서 테스트할 때 필요한 설정
 # to allow Http traffic for local dev
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" 
 
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_ID = os.environ.get("CLIENT_ID")
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=[
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "openid"
-    ],
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
     redirect_uri="http://localhost:3000/callback"
 )
 
+
 flow2 = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=[
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "openid"
-    ],
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
     redirect_uri="http://localhost:3000/login/callback"
 )
 
@@ -102,12 +95,6 @@ def callback():
             audience=GOOGLE_CLIENT_ID
         )
 
-        # Store user ID and name in session
-        session["google_id"] = id_info.get("sub")
-        session["name"] = id_info.get("name")
-        session["email"] = id_info.get("email")
-        session["picture"] = id_info.get("picture")
-        
         conn  =  sqlite3.connect('users.sqlite3')
         cursor = conn.cursor()
         
@@ -115,29 +102,11 @@ def callback():
         cursor.execute(sql,(id_info.get("name"),id_info.get("email"),id_info.get("sub"),"google"))
         conn.commit()    
 
-        return redirect("/dashboard")
+        return redirect("/")
     else:
         return redirect("/")
 
 
-@app.route("/dashboard")
-@login_is_required
-def protected_area():
-    try:
-        # Construct a greeting message with more user information
-        greeting_message = f""
-        greeting_message += f"<h1>Hello</h1>"
-        greeting_message += f"Your GoogleID  : {session['google_id']}!<br/>"
-        greeting_message += f"Your name  : {session['name']}!<br/>"
-        greeting_message += f"Your email : {session['email']}<br/>"
-        greeting_message += f"<img src='{session['picture']}' alt='Profile Picture'><br/></br/>"
-        greeting_message += "<a href='/logout'><button>Logout</button></a>"
-        
-        return greeting_message
-    except Exception as e:
-        # Handle exceptions gracefully
-        return f"An error occurred: {e}", 500
-    
 @app.route("/logout")
 def logout():
     if "google_id" in session:
@@ -147,10 +116,10 @@ def logout():
         return redirect("/")
 
 
+
 @app.route("/register")
 def register_page():
     return redirect("/")
-
 
 @app.route('/signin')
 def sign_in():
@@ -170,12 +139,8 @@ def login_callback():
     
     flow2.fetch_token(authorization_response=request.url)
 
-    # # Check if "state2" key exists in session
-    # if "state2" not in session:
-    #     abort(500)  # State does not exist in session!
-
-    # if not session["state2"] == request.args["state"]:
-    #     abort(500)  # State does not match!
+    if not session["state2"] == request.args["state"]:
+        abort(500)  # State does not match!
 
     credentials = flow2.credentials
     request_session = requests.session()

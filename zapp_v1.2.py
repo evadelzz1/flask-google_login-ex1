@@ -1,30 +1,31 @@
-import os
-import pathlib
+import os, pathlib
 import requests
-from flask import Flask, session, abort, redirect, request, render_template
+from flask import Flask, session, abort, redirect, request, render_template, url_for
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
-from pip._vendor import cachecontrol
 import google.auth.transport.requests
+from pip._vendor import cachecontrol
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()   # load .env
+
+app = Flask("Google Login App")
+app.secret_key = os.environ.get("APP_SECRET") 
+# python -c 'import secrets; print(secrets.token_hex())'
+print(f'>>> APP_SECRET_KEY : {app.secret_key}')
+
+# https 만을 지원하는 기능을 http에서 테스트할 때 필요한 설정
+# to allow Http traffic for local dev
+# 개발환경에만 적용. 보안 연결이 활성화되지 않은 트랜스포트를 허용한다는 것을 의미
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 # SQLITE CONFIG
 import sqlite3
 conn  =  sqlite3.connect('users.sqlite3', check_same_thread=False)
 cursor = conn.cursor()
-
-
-app = Flask("flask-login-app")
-app.secret_key = os.environ.get("APP_SECRET") # make sure 
-
-# https 만을 지원하는 기능을 http에서 테스트할 때 필요한 설정
-# to allow Http traffic for local dev
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" 
-
-GOOGLE_CLIENT_ID = os.environ.get("CLIENT_ID")
-client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 def get_google_oauth_flow(redirect_uri):
     return Flow.from_client_secrets_file(

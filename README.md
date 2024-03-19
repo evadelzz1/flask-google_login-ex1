@@ -2,11 +2,11 @@
 Register and Login with Google OAuth using Flask and SQLite
 
 
-
 ## Install requirements
 
 ```shell
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 ---
@@ -22,8 +22,8 @@ credentials
 ## Setup `.env` variables
 Create a `.env`add these variables and their respective values :
 
-- `APP_SECRET=` YOUR CLIENT SECRET
-- `CLIENT_ID=` YOUR CLIENT ID 
+- `APP_SECRET_KEY=` YOUR CLIENT SECRET
+- `GOOGLE_CLIENT_ID=` YOUR GOOGLE_CLIENT_ID
 
 ## Download Client Secret
 - Download your `client secret` json file and rename it to `client_secret.json` and place it in the root folder of this app
